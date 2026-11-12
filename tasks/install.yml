@@ -1,0 +1,19 @@
+---
+- name: Install UFW package with apt
+  ansible.builtin.apt:
+    name: "{{ ufw_package }}"
+    state: present
+    update_cache: true
+    cache_valid_time: "{{ ufw_apt_cache_valid_time }}"
+  when: ansible_facts.pkg_mgr == 'apt'
+
+- name: Install UFW package
+  ansible.builtin.package:
+    name: "{{ ufw_package }}"
+    state: present
+  when: ansible_facts.pkg_mgr != 'apt'
+
+- name: Gather installed packages in check mode
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_check_mode

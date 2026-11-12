@@ -1,0 +1,14 @@
+---
+ufw_package: ufw
+ufw_service: ufw
+ufw_apt_cache_valid_time: 3600
+
+# Possible options for ufw_state: enabled, disabled, reset, clean
+ufw_state: enabled
+
+ufw_logging: low
+ufw_default_policies:
+  incoming: deny
+  outgoing: allow
+  routed: deny
+ufw_rules: []

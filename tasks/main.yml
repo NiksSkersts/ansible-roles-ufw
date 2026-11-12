@@ -1,0 +1,17 @@
+---
+- name: Validation stage
+  ansible.builtin.import_tasks: validation.yml
+  tags:
+    - ufw
+
+- name: Set up UFW
+  become: true
+  tags:
+    - ufw
+  block:
+    - name: Install UFW
+      ansible.builtin.import_tasks: install.yml
+
+    - name: Configure UFW
+      ansible.builtin.import_tasks: configure.yml
+      when: not ansible_check_mode or ufw_package in ansible_facts.packages
