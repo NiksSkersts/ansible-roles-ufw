@@ -1,0 +1,55 @@
+---
+- name: Disable UFW
+  community.general.ufw:
+    state: disabled
+  when: ufw_state == 'disabled' or ufw_state == 'clean'
+
+- name: Reset UFW
+  community.general.ufw:
+    state: reset
+  when: ufw_state == 'reset' or ufw_state == 'clean'
+
+- name: Configure UFW rules
+  community.general.ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port | default(omit) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    name: "{{ item.name | default(omit) }}"
+    from_ip: "{{ item.from_ip | default(omit) }}"
+    from_port: "{{ item.from_port | default(omit) }}"
+    to_ip: "{{ item.to_ip | default(omit) }}"
+    direction: "{{ item.direction | default(omit) }}"
+    interface: "{{ item.interface | default(omit) }}"
+    interface_in: "{{ item.interface_in | default(omit) }}"
+    interface_out: "{{ item.interface_out | default(omit) }}"
+    route: "{{ item.route | default(omit) }}"
+    log: "{{ item.log | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    delete: "{{ item.delete | default(omit) }}"
+    insert: "{{ item.insert | default(omit) }}"
+  loop: "{{ ufw_rules }}"
+
+- name: Configure UFW default policies
+  community.general.ufw:
+    direction: "{{ item }}"
+    default: "{{ ufw_default_policies[item] }}"
+  loop:
+    - incoming
+    - outgoing
+    - routed
+
+- name: Configure UFW logging
+  community.general.ufw:
+    logging: "{{ ufw_logging }}"
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+  when: ufw_state == 'enabled' or ufw_state == 'clean'
+
+- name: Enable UFW service at boot
+  ansible.builtin.service:
+    name: "{{ ufw_service }}"
+    enabled: true
+    state: started
+  when: ufw_state == 'enabled' or ufw_state == 'clean'

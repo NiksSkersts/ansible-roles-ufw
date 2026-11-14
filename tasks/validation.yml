@@ -1,0 +1,27 @@
+---
+- name: Validate UFW settings
+  ansible.builtin.assert:
+    that:
+      - ufw_state in ['enabled', 'disabled', 'reset', 'clean']
+      - ufw_logging in ['on', 'off', 'low', 'medium', 'high', 'full']
+      - ufw_rules is sequence
+      - ufw_rules is not string
+      - ufw_rules is not mapping
+    fail_msg: Check the UFW settings and use a Linux host with gathered facts.
+
+- name: Validate UFW default policies
+  ansible.builtin.assert:
+    that:
+      - ufw_default_policies is mapping
+      - ufw_default_policies.incoming | default('') in ['allow', 'deny', 'reject']
+      - ufw_default_policies.outgoing | default('') in ['allow', 'deny', 'reject']
+      - ufw_default_policies.routed | default('') in ['allow', 'deny', 'reject']
+    fail_msg: Set incoming, outgoing, and routed UFW policies to allow, deny, or reject.
+
+- name: Validate UFW rules
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+      - item.rule | default('') in ['allow', 'deny', 'reject', 'limit']
+    fail_msg: Each UFW rule must be a mapping with an allow, deny, reject, or limit action.
+  loop: "{{ ufw_rules }}"
